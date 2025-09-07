@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Users\toryo\Coding\OpenGL-Learning\Multiple Fragment Shaders\src\main.cpp(196,44): warning C4100: 'window': unreferenced parameter
+  Multiple Fragment Shaders.vcxproj -> C:\Users\toryo\Coding\OpenGL-Learning\x64\Debug\Multiple Fragment Shaders.exe
