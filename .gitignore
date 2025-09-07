@@ -1,0 +1,38 @@
+# Visual Studio and MSBuild
+*.vs/
+*.VC.db
+*.VC.VC.opendb
+*.suo
+*.user
+*.[Pp]roject.user
+*.sln.docstates
+
+# Build output folders
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bin/
+obj/
+
+# Other generated files
+*.log
+*.tlog
+*.ilk
+*.pdb
+*.exe
+*.dll
+*.lib
+*.obj
+
+# Backup and temporary files
+*.tmp
+*.bak
+*.old
+*.sbr
+*~
+*.ncb
+
+# vcpkg
+vcpkg_installed/
