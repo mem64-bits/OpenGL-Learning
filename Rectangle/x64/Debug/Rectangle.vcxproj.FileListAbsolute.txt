@@ -1,1 +1,0 @@
-C:\Users\toryo\Coding\OpenGL-Learning\Rectangle\x64\Debug\Rectangle.vcxproj.Up2Date

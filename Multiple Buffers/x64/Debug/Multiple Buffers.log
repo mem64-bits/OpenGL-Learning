@@ -1,4 +1,0 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(538,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (Multiple Buffers.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  main.cpp
-C:\Users\toryo\Coding\OpenGL-Learning\Multiple Buffers\src\main.cpp(215,44): warning C4100: 'window': unreferenced parameter
-  Multiple Buffers.vcxproj -> C:\Users\toryo\Coding\OpenGL-Learning\x64\Debug\Multiple Shaders.exe
