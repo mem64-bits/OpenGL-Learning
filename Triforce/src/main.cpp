@@ -187,7 +187,7 @@ int main()
     glDeleteShader(fragmentShader);
 
     //Toggle Wireframe rendering mode
-    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
   
     // Render Loop
     while (!glfwWindowShouldClose(window))
