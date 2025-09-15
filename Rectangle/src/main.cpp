@@ -81,7 +81,7 @@ int main()
     // Shader Compilation Check
     checkShaderCompileStatus(vertexShader);
 
-
+    // Fragment Shader Setup
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
@@ -152,7 +152,7 @@ int main()
 
 
     //Toggle Wireframe rendering mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Render Loop
     while (!glfwWindowShouldClose(window))

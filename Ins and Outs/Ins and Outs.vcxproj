@@ -21,10 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1ecd754a-fd6b-4d08-8f4e-e7406c2bf570}</ProjectGuid>
-    <RootNamespace>Multiple_Buffers</RootNamespace>
+    <ProjectGuid>{9c355204-f456-4609-b2be-b856bbec0c73}</ProjectGuid>
+    <RootNamespace>Ins_and_Outs</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Multiple Buffers</ProjectName>
+    <ProjectName>Ins and Outs</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -137,6 +137,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\ShaderOutput.frag" />
+    <None Include="src\ShaderInput.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,10 +1,8 @@
 #include <glad/glad.h>
 #include  <GLFW/glfw3.h>
 #include <iostream>
-/*This program uses 2 separate VBO'S and VAO's to draw
- *triangles to the screen*/
 
- // Forward Declarations to make code cleaner
+// Forward Declarations to make code cleaner
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow* window);
@@ -24,7 +22,7 @@ void main()
 )";
 
 // GLSL Fragment Shader, controls colour of the triangle
-const char* fragmentShaderSource1 = R"(
+const char* fragmentShaderSource = R"(// Fragment Shader
 #version 330 core
 out vec4 FragColor;
 void main()
@@ -32,8 +30,6 @@ void main()
    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }
 )";
-
-
 
 int main()
 {
@@ -45,12 +41,13 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // the next version to try if major version fails
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
     // Windows dimensions shared between glfw and OpenGL
     int width = 800;
     int height = 600;
 
     // Creates GLFW Window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Multiple Buffer Triangles", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Triangle", NULL, NULL);
 
     // GLFW Initialization Check
     if (window == NULL)
@@ -85,14 +82,13 @@ int main()
     checkShaderCompileStatus(vertexShader);
 
 
-    // Fragment Shader setup
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource1, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
     checkShaderCompileStatus(fragmentShader);
 
-    // Shader Program Setup
+    // After the shaders have been created and compiled they need to be linked to create a program
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
 
@@ -111,56 +107,60 @@ int main()
     /*---------------------------------------------------------------------------*/
 
     // Vertex Data (Forms Triangle)
-    const float triangles[2][9] = {
-          {
-             -0.5f,  0.5f, 0.0f, // Top (0)
-             -1.0f, -0.5f, 0.0f, // Left (2)
-              0.0f, -0.5f, 0.0f // Right (2)
-          },
-
-         {
-             0.5f,  0.5f, 0.0f, // Top (0)
-             0.0f, -0.5f, 0.0f, // Left (2)
-             1.0f, -0.5f, 0.0f // Right (2)
-         }
+    float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
     };
 
-    unsigned int VBOs[2];
-    unsigned int VAOs[2];
+    // Indice data for EBO (Useful for complex shapes)
+    unsigned int indices[]{
+        0,1,2
+    };
 
-    for (std::size_t i = 0; i < 2; i++)
-    {
-        glGenBuffers(1, &VBOs[i]);
-        glGenVertexArrays(1, &VAOs[i]);
-        glBindVertexArray(VAOs[i]);
+    unsigned int VBO;
+    unsigned int VAO;
+    unsigned int EBO;
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(triangles[i]), triangles[i], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
+    // Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
+
+  
+    // States type of information stored in buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // Copies vertex data to the vertex buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // EBO Setup
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // Set the vertex attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Unbind the VBO as it's now registered in the VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Unbind the VAO
+    glBindVertexArray(0);
+
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
         // Clears screen and draws blue background
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
 
         /*Things we want to render start from here*/
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAOs[0]); // Rebind the VAO with all our configuration for drawing
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-        // Draws the second triangle stored in the VAO Array
-        glBindVertexArray(0);
-        glBindVertexArray(VAOs[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(VAO); // Rebind the VAO with all our configuration for drawing
+        glDrawElements(GL_TRIANGLES, 3,GL_UNSIGNED_INT,0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
