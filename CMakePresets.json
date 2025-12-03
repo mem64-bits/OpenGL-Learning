@@ -7,8 +7,8 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe"
       },
       "condition": {
@@ -21,41 +21,20 @@
       "name": "windows-msvc-debug",
       "displayName": "Windows MSVC Debug",
       "inherits": "windows-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebugDLL"
+      }
     },
     {
       "name": "windows-msvc-release",
       "displayName": "Windows MSVC Release",
       "inherits": "windows-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
-    },
-
-    {
-      "name": "linux-g++-base",
-      "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "g++"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
       }
-    },
-    {
-      "name": "linux-g++-debug",
-      "displayName": "Linux g++ Debug",
-      "inherits": "linux-g++-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
-    },
-    {
-      "name": "linux-g++-release",
-      "displayName": "Linux g++ Release",
-      "inherits": "linux-g++-base",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     }
   ]
+
 }
