@@ -1,5 +1,31 @@
-﻿# 1. Get the directory where the script is RUNNING (now fixed by the alias)
+﻿# 1. Get the directory where the script is RUNNING
 $CurrentDir = Get-Location
+
+# ==============================================================================
+# 🛡️ SAFETY CHECK: PREVENT RUNNING IN ROOT
+# ==============================================================================
+try {
+    # Get the Git Root path
+    $GitRoot = git rev-parse --show-toplevel 2>$null
+    
+    # Normalize paths to ensure comparison works (Git uses /, Windows uses \)
+    $NormCurrent = $CurrentDir.Path.Replace('\', '/').TrimEnd('/')
+    $NormRoot = $GitRoot.Replace('\', '/').TrimEnd('/')
+
+    if ($NormCurrent -eq $NormRoot) {
+        Write-Host "--------------------------------------------------" -ForegroundColor Red
+        Write-Error "⛔ ABORTING: You are trying to run this in the Repository Root!"
+        Write-Host "   This script generates a simple 'add_subdirectory' list." -ForegroundColor Yellow
+        Write-Host "   Running it here would DELETE your main CMakeLists.txt logic." -ForegroundColor Yellow
+        Write-Host "   Please 'cd' into 'Projects'folder first." -ForegroundColor Yellow
+        Write-Host "--------------------------------------------------" -ForegroundColor Red
+        exit 1
+    }
+} catch {
+    # If git fails, we proceed with caution, but usually this is run in a git repo.
+}
+# ==============================================================================
+
 $OutputFile = Join-Path $CurrentDir "CMakeLists.txt"
 
 Write-Host "--------------------------------------------------" -ForegroundColor DarkGray
