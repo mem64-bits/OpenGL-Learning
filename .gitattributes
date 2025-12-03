@@ -1,0 +1,8 @@
+# Force all shell scripts to use Linux Line Endings (LF)
+*.sh text eol=lf
+
+# Force PowerShell scripts to use Windows Line Endings (CRLF)
+*.ps1 text eol=crlf
+
+# Keep CMake files standard
+CMakeLists.txt text
