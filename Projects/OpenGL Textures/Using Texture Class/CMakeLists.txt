@@ -1,1 +1,1 @@
-﻿create_lesson(OpenGL_Textures)
+﻿create_lesson(Using_Texture_Class)
