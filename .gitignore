@@ -87,7 +87,9 @@ ipch/
 /vcpkg/
 
 # User has to install libraries themselves
-/external
+/external/glm
+/external/stb
+/external/glfw
 
 # =============================================================================
 # macOS Specific Files
@@ -101,3 +103,6 @@ ipch/
 # This rule tells Git to NOT ignore .gitkeep files.
 # =============================================================================
 !/.gitkeep
+
+#Obsidian md file editor config 
+.obsidian/

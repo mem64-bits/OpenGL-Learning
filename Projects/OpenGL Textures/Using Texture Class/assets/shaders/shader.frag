@@ -9,9 +9,6 @@ uniform sampler2D texture2;
 
 uniform bool negativeForm;
 uniform bool greyscale;
-uniform bool transition;
-uniform float transitionProgress;
-
 
 void main()
 {
@@ -19,10 +16,23 @@ void main()
     vec4 fgTex = texture(texture2, TexCoord);
     vec4 baseColour = mix(bgTex, fgTex, fgTex.a);
 
-    vec4 negBGColour = vec4(1.0f - bgTex.rgb, bgTex.a);
-    vec4 negFGColour = vec4(1.0f - fgTex.rgb, fgTex.a);
-    vec4 negColour = mix(negBGColour, negFGColour, negFGColour.a);
-   
 
-    FragColour = baseColour;
+ 
+
+    if(negativeForm)
+    {
+       vec4 negColour = vec4(1.0 - baseColour.rgb, baseColour.a);
+       FragColour = negColour;
+    }
+    else if(greyscale)
+    {
+        float averageGrey = (0.299 * baseColour.r) + (0.587 * baseColour.g) + (0.114 * baseColour.b);
+        vec4 greyColour = vec4(averageGrey,averageGrey,averageGrey,baseColour.a);
+        FragColour = greyColour;
+    }
+
+    else{
+        FragColour = baseColour;
+    }
+  
 }

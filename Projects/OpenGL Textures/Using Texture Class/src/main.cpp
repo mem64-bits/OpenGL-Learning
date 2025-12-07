@@ -21,7 +21,7 @@ int main()
 
     int winWidth = 1920;
     int winHeight = 1200;
-    GLFWwindow *window = glfwCreateWindow(winWidth, winHeight, "Learning OpenGL", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(winWidth, winHeight, "OpenGL Textures: Kazuya Smile", nullptr, nullptr);
 
     if (window == nullptr) {
         std::cerr << "Failed to setup GLFW window" << std::endl;
@@ -47,15 +47,15 @@ int main()
     glfwSetKeyCallback(window, key_callback);
 
     // Uses our new shader object cutting down on boilerplate code
-    const Shader shader{"assets/shaders/shader.vert", "assets/shaders/shader.frag"};
+    Shader shader{"assets/shaders/shader.vert", "assets/shaders/shader.frag"};
 
     // Correct vertex data for a full-screen quad
     float vertices[] = {
-        // positions          // colors           // texture coords
-        1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // Top Right
-        1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Bottom Right
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom Left
-        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // Top Left
+        // positions          // colors          // texture coords
+        1.0f,   1.0f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // Top Right
+        1.0f,  -1.0f,  0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // Bottom Right
+        -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // Bottom Left
+        -1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f // Top Left
     };
 
     // Correct indices to draw the two triangles for the quad
@@ -103,8 +103,8 @@ int main()
     glBindVertexArray(0);
 
     shader.use();
-    shader.setUniformInt("texture1", 0);
-    shader.setUniformInt("texture2", 1);
+    shader.setUniform<int>("texture1", 0);
+    shader.setUniform<int>("texture2", 1);
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -112,22 +112,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
 
-        shader.use();
-        float transitionTime{5.0f};
-
-        shader.setUniformBool("negativeForm", state.negative);
-        shader.setUniformBool("greyscale", state.greyscale);
-
-        if (state.transitioning) {
-            float currentTime{static_cast<float>(glfwGetTime())};
-            const float elapsedTime{currentTime - state.transStartTime};
-            const float progress = elapsedTime / transitionTime;
-            shader.setUniformFloat("progress", progress);
-
-            if (progress >= 1.0f) {
-                state.transitioning = false;
-            }
-        }     
+        shader.use();  
+        shader.setUniform<bool>("negativeForm", state.negative);
+        shader.setUniform<bool>("greyscale", state.greyscale);
         tex1.bindTexture(0);
         tex2.bindTexture(1);
 

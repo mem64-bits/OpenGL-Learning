@@ -1,12 +1,12 @@
-#pragma once
+﻿#pragma once
 
 #include <glad/gl.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
-// For vecN uniform setters
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -14,11 +14,13 @@ class Shader
 {
 private:
     unsigned int shaderProgram;
+    // Cache for uniform locations to improve performance
+    mutable std::unordered_map<std::string, int> m_UniformLocationCache;
 
 public:
     Shader(const char *vertexPath, const char *fragmentPath)
     {
-        // 1. retrieve the vertex/fragment source code from filePath
+        // retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile;
@@ -43,28 +45,26 @@ public:
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
         }
-        catch (std::ifstream::failure e)
+        catch (const std::ifstream::failure& e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ:: " << e.what() << std::endl;
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ:: " << e.what() << std::endl;
         }
         const char *vShaderCode = vertexCode.c_str();
         const char *fShaderCode = fragmentCode.c_str();
 
-        // 2. compile shaders
-        unsigned int vertexShader;
-        unsigned int fragmentShader;
-
-        // vertex Shader
-        vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vShaderCode, NULL);
+        // compiles vertex shader from shader source code
+        unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vShaderCode, nullptr);
         glCompileShader(vertexShader);
         checkShaderCompileStatus(vertexShader);
 
-        fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
+        // compiles fragment shader from shader source code
+        unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fShaderCode, nullptr);
         glCompileShader(fragmentShader);
         checkShaderCompileStatus(fragmentShader);
 
+        // creates shader program and attaches vertex and fragment shaders
         shaderProgram = glCreateProgram();
         glAttachShader(shaderProgram, vertexShader);
         glAttachShader(shaderProgram, fragmentShader);
@@ -74,17 +74,80 @@ public:
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
     }
+
+    // deletes shader program when a class goes out of scope
     ~Shader()
     {
         glDeleteProgram(shaderProgram);
     }
 
+    // Activates the shader program
     void use() const
     {
         glUseProgram(shaderProgram);
     }
+    
+    // The single, templated uniform setter to avoid multiple methods for GLSL Types
+    template <typename T>
+    void setUniform(const std::string &name, const T &value)
+    {
+        int location = getUniformLocation(name);
 
-    void checkShaderCompileStatus(unsigned int shader)
+        // Evaluates types at compile time to optimise away checks at runtime
+        if constexpr (std::is_same_v<T, bool>) {
+            glUniform1i(location, static_cast<int>(value));
+        }
+        else if constexpr (std::is_same_v<T, int>) {
+            glUniform1i(location, value);
+        }
+        else if constexpr (std::is_same_v<T, float>) {
+            glUniform1f(location, value);
+        }
+        else if constexpr (std::is_same_v<T, glm::vec2>) {
+            glUniform2fv(location, 1, glm::value_ptr(value));
+        }
+        else if constexpr (std::is_same_v<T, glm::vec3>) {
+            glUniform3fv(location, 1, glm::value_ptr(value));
+        }
+        else if constexpr (std::is_same_v<T, glm::vec4>) {
+            glUniform4fv(location, 1, glm::value_ptr(value));
+        }
+        else if constexpr (std::is_same_v<T, glm::mat3>) {
+            glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        }
+        else if constexpr (std::is_same_v<T, glm::mat4>) {
+            glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        }
+        else {
+            // This will produce a compile-time error if you try to use an unsupported type.
+            static_assert(sizeof(T) == 0, "Unsupported uniform type used in Shader::setUniform");
+        }
+    }
+
+private:
+    // Caches uniform location to avoid getting it every frame
+    int getUniformLocation(const std::string &name) const
+    {
+        // Check if we already have this location in our cache
+        if (m_UniformLocationCache.contains(name))
+        {
+            return m_UniformLocationCache[name];
+        }
+
+        // If not, retrieve it from OpenGL
+        const int location = glGetUniformLocation(shaderProgram, name.c_str());
+        if (location == -1)
+        {
+            std::cerr << "Warning: uniform '" << name << "' not found!" << std::endl;
+        }
+
+        // Add the location to our cache for future calls
+        m_UniformLocationCache[name] = location;
+        return location;
+    }
+
+
+    static void checkShaderCompileStatus(const unsigned int shader)
     {
         int success;
         char infoLog[512];
@@ -106,54 +169,25 @@ public:
                 shaderName = "Fragment Shader";
                 break;
             default:
-                return;
+                break;
             }
-            glGetShaderInfoLog(shader, 512, NULL, infoLog);
+            glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
             std::cerr << shaderName << " failed to compile: " << infoLog << '\n';
         }
     }
 
-    void checkShaderProgramStatus(unsigned int program)
+    static void checkShaderProgramStatus(unsigned int program)
     {
         int success;
         char infoLog[512];
-        // after the program is linked we do a check to see if its valid
+        // after the program is linked, we do a check to see if it's valid
         glGetProgramiv(program, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(program, 512, NULL, infoLog);
-            std::cout << "Shader Program failed to link!: \n"
+            glGetProgramInfoLog(program, 512, nullptr, infoLog);
+            std::cerr << "Shader Program failed to link!: \n"
                       << infoLog << '\n';
         }
-    }
-
-    void setUniformInt(const std::string &name, int value) const
-    {
-        glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
-    }
-
-    void setUniformBool(const std::string &name, bool value) const
-    {
-        glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), static_cast<int>(value));
-    }
-    void setUniformFloat(const std::string &name, float value) const
-    {
-        glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
-    }
-
-    void setUniformVec2(const std::string &name, const glm::vec2 &value) const
-    {
-        glUniform2fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, glm::value_ptr(value));
-    }
-
-    void setUniformVec3(const std::string &name, const glm::vec3 &value) const
-    {
-        glUniform3fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, glm::value_ptr(value));
-    }
-
-    void setUniformVec4(const std::string name, glm::vec4 value) const
-    {
-        glUniform4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, glm::value_ptr(value));
     }
 };

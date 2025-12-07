@@ -28,17 +28,17 @@ void key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, in
         glPolygonMode(GL_FRONT_AND_BACK, s->wireframe ? GL_LINE : GL_FILL);
     }
 
-    //if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-    //    auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-    //    if (!s) return;
-    //    s->negative = !s->negative;
-    //}
+    if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
+        if (!s) return;
+        s->negative = !s->negative;
+    }
 
-    //if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-    //    auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-    //    if (!s) return;
-    //    s->greyscale = !s->greyscale;
-    //}
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
+        if (!s) return;
+        s->greyscale = !s->greyscale;
+    }
 
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));

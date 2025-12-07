@@ -17,15 +17,6 @@ endif()
 option(USE_SHARED_LIBS "Build external libraries as Shared (Dynamic) instead of Static" OFF)
 option(BUILD_ALL_LESSONS "Build all discovered projects by default" ON)
 
-# Python needed to generate glad context automatically
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
-
-# GLAD Setup (checks if needed python package for glad library generation is installed)
-execute_process(COMMAND ${Python3_EXECUTABLE} -c "import jinja2" RESULT_VARIABLE JINJA_STATUS ERROR_QUIET)
-if(NOT JINJA_STATUS EQUAL 0)
-    message(FATAL_ERROR "Python 'jinja2' not found. Please run: pip install jinja2")
-endif()
-
 # Links glad dynamically or statically depending on option chosen 
 if(USE_SHARED_LIBS)
     set(GLAD_TYPE SHARED)
