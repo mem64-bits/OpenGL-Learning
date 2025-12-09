@@ -8,31 +8,118 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Fix for Windows headers breaking std::min/max
 if(MSVC)
     add_compile_definitions(NOMINMAX)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 # ==============================================================================
 #  USER OPTIONS
 # ==============================================================================
-
 option(USE_SHARED_LIBS "Build external libraries as Shared (Dynamic) instead of Static" OFF)
 option(BUILD_ALL_LESSONS "Build all discovered projects by default" ON)
 
-# Links glad dynamically or statically depending on option chosen 
+# ==============================================================================
+# 1. SETUP LOCAL PYTHON VENV (In Build Folder)
+# ==============================================================================
+
+# A. Find System Python (Bootstrap only)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+# B. Define Venv Path
+set(VENV_DIR "${CMAKE_BINARY_DIR}/venv")
+
+if(WIN32)
+    set(VENV_PYTHON_EXE "${VENV_DIR}/Scripts/python.exe")
+else()
+    set(VENV_PYTHON_EXE "${VENV_DIR}/bin/python3")
+endif()
+
+# C. Create Venv if missing
+if(NOT EXISTS "${VENV_PYTHON_EXE}")
+    message(STATUS "🌱 Creating Python Virtual Environment in: ${VENV_DIR}...")
+    execute_process(
+        COMMAND "${Python3_EXECUTABLE}" -m venv "${VENV_DIR}"
+        RESULT_VARIABLE VENV_RESULT
+    )
+    if(NOT VENV_RESULT EQUAL 0)
+        message(FATAL_ERROR "❌ Failed to create virtual environment.")
+    endif()
+    
+    # Upgrade pip quietly
+    execute_process(COMMAND "${VENV_PYTHON_EXE}" -m pip install --upgrade pip --quiet)
+endif()
+
+message(STATUS "🔒 Using Project Python: ${VENV_PYTHON_EXE}")
+
+# ==============================================================================
+# 2. INSTALL GLAD2 & GENERATE SOURCES
+# ==============================================================================
+set(GLAD_OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/glad")
+set(GLAD_HEADER "${GLAD_OUT_DIR}/include/glad/gl.h")
+
+# A. Install 'glad2' (and jinja2) package into the Venv
+# We check if we can import 'glad'. If not, we install 'glad2'.
+execute_process(COMMAND "${VENV_PYTHON_EXE}" -c "import glad2" RESULT_VARIABLE GLAD_PKG_EXISTS ERROR_QUIET)
+
+if(NOT GLAD_PKG_EXISTS EQUAL 0)
+    message(STATUS "📦 Installing GLAD 2 package...")
+    # 'glad2' is the correct pip package name for v2
+    execute_process(
+        COMMAND "${VENV_PYTHON_EXE}" -m pip install glad2 jinja2 --disable-pip-version-check --quiet
+        RESULT_VARIABLE PIP_RESULT
+    )
+    if(NOT PIP_RESULT EQUAL 0)
+        message(FATAL_ERROR "❌ Failed to install GLAD 2 python package.")
+    endif()
+endif()
+
+# B. Generate C/H files if they are missing
+if(NOT EXISTS "${GLAD_HEADER}")
+    message(STATUS "⚙️  Generating OpenGL 4.6 Core files (GLAD 2)...")
+    
+    # CORRECT SYNTAX FOR GLAD 2:
+    # python -m glad [OPTIONS] [GENERATOR]
+    # Options like --out-path must come BEFORE 'c'
+    execute_process(
+        COMMAND "${VENV_PYTHON_EXE}" -m glad 
+                --api gl:core=4.6
+                --out-path "${GLAD_OUT_DIR}"
+                --reproducible
+                c 
+        RESULT_VARIABLE GLAD_GEN_RESULT
+    )
+
+    if(NOT GLAD_GEN_RESULT EQUAL 0)
+        message(FATAL_ERROR "❌ GLAD Generation failed.")
+    endif()
+else()
+    message(STATUS "✅ GLAD sources found. Skipping generation.")
+endif()
+
+# ==============================================================================
+# 3. DEFINE GLAD LIBRARY
+# ==============================================================================
+# We manually define the library from the generated files
 if(USE_SHARED_LIBS)
     set(GLAD_TYPE SHARED)
 else()
     set(GLAD_TYPE STATIC)
 endif()
 
-add_subdirectory(external/glad/cmake) 
-glad_add_library(glad ${GLAD_TYPE} REPRODUCIBLE API gl:core=4.6)
+add_library(glad ${GLAD_TYPE} "${GLAD_OUT_DIR}/src/gl.c")
+target_include_directories(glad PUBLIC "${GLAD_OUT_DIR}/include")
+
+if(USE_SHARED_LIBS)
+    target_compile_definitions(glad PUBLIC GLAD_GLAPI_EXPORT)
+endif()
+
+# ==============================================================================
+# 4. EXTERNAL DEPENDENCIES (GLFW, GLM, STB)
+# ==============================================================================
 
 # GLFW Setup
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-# Links GLFW with set linking method
 set(BUILD_SHARED_LIBS ${USE_SHARED_LIBS} CACHE BOOL "" FORCE)
 
 add_subdirectory(external/glfw)
@@ -41,11 +128,13 @@ add_subdirectory(external/glfw)
 add_library(glm INTERFACE)
 target_include_directories(glm SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/external/glm")
 
-# Defines STB Library (Header Only) ---
+# Defines STB Library (Header Only)
 add_library(stb INTERFACE)
 target_include_directories(stb SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/external/stb")
 
-# Setups setup the common libraries project will be linked against
+# ==============================================================================
+# 5. COMMON LIBS
+# ==============================================================================
 add_library(common_libs INTERFACE)
 target_link_libraries(common_libs
     INTERFACE
@@ -55,6 +144,9 @@ target_link_libraries(common_libs
         stb
 )
 
+# ==============================================================================
+# 6. HELPER FUNCTIONS
+# ==============================================================================
 
 # Function to suppress warnings for external libraries
 function(silence_target target)

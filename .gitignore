@@ -90,12 +90,12 @@ ipch/
 /external/glm
 /external/stb
 /external/glfw
+/external/glad
 
 # =============================================================================
 # macOS Specific Files
 # =============================================================================
 .DS_Store
-
 
 # =============================================================================
 # An "Empty" Folder Exception
@@ -106,3 +106,5 @@ ipch/
 
 #Obsidian md file editor config 
 .obsidian/
+
+Projects/Transformations
