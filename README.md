@@ -77,7 +77,7 @@ cmake --preset gcc-linux-debug
 
 For Project Names enter the project folder name, located in `Projects/` that you want to build but replace any spaces with "_" .
 e.g. "Shader Class" => "Shader_Class".
-(Folders with no spaces remain the same)
+(Folders with no spaces remain the same) e.g Uniforms => Uniforms
 
 
 #### Windows
