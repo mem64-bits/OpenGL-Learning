@@ -9,7 +9,7 @@
 
 ## Usage Guide
 
-### Note (For all cmake commands for windows commands will fail if not ran in VS Dev Prompt)
+###### Note: (For all cmake commands on windows, commands will fail if not ran in VS Dev Prompt)
 ### 1. Clone repo with submodules
 
 ```bash
