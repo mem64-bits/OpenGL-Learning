@@ -1,6 +1,5 @@
-# [submodule "external/glad"]
-#	path = external/glad
-#	url = https://github.com/Dav1dde/glad.git
+
+#Defines libraries as submodules to easily manage obtaining library repos
 [submodule "external/glfw"]
 	path = external/glfw
 	url = https://github.com/glfw/glfw.git
