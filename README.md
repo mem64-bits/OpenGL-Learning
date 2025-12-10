@@ -156,9 +156,9 @@ cmake --build out/build/linux-gcc-release/
 
 ## Useful Scripts and Git Aliases
 
-To make adding new projects to the setup easier scripts in the `BuildScripts/` folder have been created to generate the subdirectories CmakeLists.txt Project folders, and another script to create a new project lesson.
+To make adding new projects to the setup easier, scripts in the `BuildScripts/` folder have been created to generate the subdirectories CmakeLists.txt Project folders, and another script to create a new project lesson.
 
-These can be called by running 
+These can be called by running....
 
 ```bash
 cd Projects/
