@@ -18,7 +18,7 @@
 git clone --recursive https://github.com/mem64-bits/OpenGL-Learning
 ```
 
-#### 2. Install python 3.14.2 or higher to create venv environment to generate glad library files
+### 2. Install python 3.14.2 or higher to create venv environment to generate glad library files
 
 
 ### Windows
