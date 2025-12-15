@@ -2,8 +2,12 @@
 #include  <GLFW/glfw3.h>
 #include "include/GLFWCallbacks.h"
 #include "include/Shader.h"
-#include <iostream>
 #include "include/Texture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+
 
 
 int main()
@@ -18,9 +22,9 @@ int main()
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 #endif
 
-    int winWidth = 1920;
-    int winHeight = 1200;
-    GLFWwindow *window = glfwCreateWindow(winWidth, winHeight, "OpenGL Textures: Kazuya Smile", nullptr, nullptr);
+    constexpr int winWidth = 800;
+    constexpr int winHeight = 600;
+    GLFWwindow *window = glfwCreateWindow(winWidth, winHeight, "OpenGL Transformations", nullptr, nullptr);
 
     if (window == nullptr) {
         std::cerr << "Failed to setup GLFW window" << std::endl;
@@ -42,7 +46,6 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     WindowState state{};
     glfwSetWindowUserPointer(window, &state);
-
     glfwSetKeyCallback(window, key_callback);
 
     // Uses our new shader object cutting down on boilerplate code
@@ -51,10 +54,10 @@ int main()
     // Correct vertex data for a full-screen quad
     float vertices[] = {
         // positions          // colors          // texture coords
-        1.0f,   1.0f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // Top Right
-        1.0f,  -1.0f,  0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // Bottom Right
+        1.0f,    1.0f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // Top Right
+         1.0f,  -1.0f,  0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // Bottom Right
         -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // Bottom Left
-        -1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f // Top Left
+        -1.0f,   1.0f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f // Top Left
     };
 
     // Correct indices to draw the two triangles for the quad
@@ -67,10 +70,13 @@ int main()
     unsigned int VBO;
     unsigned int EBO;
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     Texture tex1 = Texture("assets/textures/KazSmile.jpg");
     Texture tex2 = Texture("assets/textures/fire.png");
 
-    // Creates Buffers need for VAO,VBO,EBO
+    // Creates Buffers needed for VAO, VBO, EBO
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -101,7 +107,9 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    
     shader.use();
+    // Sets uniforms for textures in shader
     shader.setUniform<int>("texture1", 0);
     shader.setUniform<int>("texture2", 1);
 
@@ -110,12 +118,39 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
-
+         
         shader.use();  
-        shader.setUniform<bool>("negativeForm", state.negative);
-        shader.setUniform<bool>("greyscale", state.greyscale);
         tex1.bindTexture(0);
         tex2.bindTexture(1);
+
+        //Creates identity matrix to perform transformations on
+        glm::mat4 trans = glm::mat4(1.0f);
+
+        /*In 3D Graphics we want to follow the rule T.R.S when applying transformations
+        on translation matrices
+        
+        1. Translation
+        2. Rotation
+        3. Scaling
+
+        This ensures that the math done on the object is appiled in the correct order
+        which is actually S.R.T
+        */
+
+        /* The translation matrix can be used to "translate" or move an object 
+         * in the direction of a given vector */
+        trans = glm::translate(trans, glm::vec3(-0.5f, 0.0f, 0.0f));
+        trans = glm::rotate(trans, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.0f, -1.0f));
+       
+        /* We can also scale our object over time using frame-time that is
+		normalised from a range of [-1, 1] by sin()*/
+        float scaleValue = static_cast<float>(sin(glfwGetTime()));
+        trans = glm::scale(trans, glm::vec3(scaleValue, scaleValue, scaleValue));
+      
+        // Sets transform uniform in vertex shader
+        shader.setUniform<glm::mat4>("transform", trans);
+        // Updates shader states in fragment shader
+        shader.setUniform<int>("shaderState", state.shaderState);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -123,7 +158,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);

@@ -169,9 +169,15 @@ silence_target(glfw)
 # Function to define a lesson project executable
 function(create_lesson TARGET_NAME)
     if(BUILD_ALL_LESSONS)
-        add_executable(${TARGET_NAME} src/main.cpp)
+        add_executable(${TARGET_NAME}
+                src/main.cpp
+                src/stb_define.cpp
+        )
     else()
-        add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL src/main.cpp)
+        add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL
+                src/main.cpp
+                src/stb_define.cpp
+        )
     endif()
     # Links every project with the commonly used libraries
     target_link_libraries(${TARGET_NAME} PRIVATE common_libs)
