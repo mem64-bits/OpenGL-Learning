@@ -18,7 +18,7 @@
 git clone --recursive https://github.com/mem64-bits/OpenGL-Learning
 ```
 
-#### 2. Install python 3.14.2 or higher to create venv environment to generate glad library files
+### 2. Install python 3.14.2 or higher to create venv environment to generate glad library files
 
 
 ### Windows
@@ -77,7 +77,7 @@ cmake --preset gcc-linux-debug
 
 For Project Names enter the project folder name, located in `Projects/` that you want to build but replace any spaces with "_" .
 e.g. "Shader Class" => "Shader_Class".
-(Folders with no spaces remain the same)
+(Folders with no spaces remain the same) e.g Uniforms => Uniforms
 
 
 #### Windows
@@ -156,9 +156,9 @@ cmake --build out/build/linux-gcc-release/
 
 ## Useful Scripts and Git Aliases
 
-To make adding new projects to the setup easier scripts in the `BuildScripts/` folder have been created to generate the subdirectories CmakeLists.txt Project folders, and another script to create a new project lesson.
+To make adding new projects to the setup easier, scripts in the `BuildScripts/` folder have been created to generate the subdirectories CmakeLists.txt Project folders, and another script to create a new project lesson.
 
-These can be called by running 
+These can be called by running....
 
 ```bash
 cd Projects/
