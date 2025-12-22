@@ -1,6 +1,5 @@
 import os
 import re
-import subprocess
 
 # ==============================================================================
 # CONFIGURATION
@@ -11,15 +10,18 @@ IGNORE_DIRS = {
 }
 
 def sanitize_target_name(name):
-    # If folder is "SpinningCube", this returns "SpinningCube" (Valid)
-    # If folder is "My Game", this returns "My_Game" (Valid)
-    return re.sub(r'[^a-zA-Z0-9_]', '_', name)
+    # FIXED: "CoordinateSystems" stays "CoordinateSystems"
+    # Logic: Split by symbols, then uppercase ONLY the first letter of each part.
+    # We avoid .capitalize() because it forces the rest of the word to lowercase.
+    words = re.split(r'[^a-zA-Z0-9]', name)
 
-# UPDATED RUN SIGNATURE
+    # Take first char upper + rest of the string as-is
+    return "".join(word[0].upper() + word[1:] for word in words if word)
+
 def run(root_dir, force=False):
-    print(f"🌱 Generating Lesson Configs starting from: {root_dir}")
+    print(f"Generating Lesson Configs starting from: {root_dir}")
     if force:
-        print("   ⚠️  Force Mode Enabled: Overwriting existing CMakeLists.txt files.")
+        print("Force Mode Enabled: Overwriting existing CMakeLists.txt files.")
 
     count_created = 0
     count_updated = 0
@@ -36,7 +38,10 @@ def run(root_dir, force=False):
             if lesson_dir == root_dir: continue
 
             cmake_file = os.path.join(lesson_dir, "CMakeLists.txt")
+
+            # Apply PascalCase to the CMake Target Name
             target_name = sanitize_target_name(folder_name)
+
             content = f"create_lesson({target_name})\n"
 
             # Logic: Create if missing, OR overwrite if force is True
@@ -47,16 +52,15 @@ def run(root_dir, force=False):
                     with open(cmake_file, "w", encoding="utf-8") as f:
                         f.write(content)
 
-                    print(f"   + {mode}: {folder_name} -> ({target_name})")
+                    print(f"   + {mode}: {folder_name} -> target: ({target_name})")
 
                     if mode == "Created": count_created += 1
                     else: count_updated += 1
 
                 except IOError as e:
-                    print(f"   ❌ Error writing to {folder_name}: {e}")
+                    print(f"Error writing to {folder_name}: {e}")
 
-    print(f"✅ Processed lessons. Created {count_created} new, Updated {count_updated}.")
+    print(f"Processed lessons. Created {count_created} new, Updated {count_updated}.")
 
 if __name__ == "__main__":
-    # Default to False if run standalone
     run(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), force=False)
