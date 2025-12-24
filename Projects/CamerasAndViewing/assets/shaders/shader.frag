@@ -2,13 +2,13 @@
 out vec4 FragColour;
 in vec2 TexCoord;
 
-uniform sampler2D texture;
+uniform sampler2D tex;
 uniform int shaderState;
 
 void main()
 {
-    vec4 baseColour = texture(texture, TexCoord);
-    switch(shaderState)
+    vec4 baseColour = texture(tex, TexCoord);
+    switch (shaderState)
     {
         case 0:
             FragColour = baseColour;
@@ -21,7 +21,7 @@ void main()
 
         case 2:
             float averageGrey = (0.299 * baseColour.r) + (0.587 * baseColour.g) + (0.114 * baseColour.b);
-            vec4 greyColour = vec4(averageGrey,averageGrey,averageGrey,baseColour.a);
+            vec4 greyColour = vec4(averageGrey, averageGrey, averageGrey, baseColour.a);
             FragColour = greyColour;
             break;
 

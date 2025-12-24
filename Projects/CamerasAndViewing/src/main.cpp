@@ -144,7 +144,7 @@ int main()
     glBindVertexArray(0);
 
     // Sends texture data to frag shader using uniforms
-    shader.setUniform<int>("texture", 0);
+    shader.setUniform<int>("tex", 0);
     shader.use();
 
 
