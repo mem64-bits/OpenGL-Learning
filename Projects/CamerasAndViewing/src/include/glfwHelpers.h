@@ -12,12 +12,12 @@ enum ShaderState
 
 struct WindowState
 {
-    bool wireframe = false;
-    bool firstMouse = false;
+    Camera *pCamera = nullptr;;
     float lastX = 0.0f;
     float lastY = 0.0f;
     ShaderState shaderState = NORMAL;
-    Camera *pCamera = nullptr;
+    bool wireframe = false;
+    bool firstMouse = false;
 };
 
 // automatically resizes the viewport when the window size is changed
@@ -30,33 +30,26 @@ inline void framebuffer_size_callback([[maybe_unused]] GLFWwindow *window, int w
 inline void key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action,
                          [[maybe_unused]] int mods)
 {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-        if (!s) return;
-        s->wireframe = !s->wireframe;
-        glPolygonMode(GL_FRONT_AND_BACK, s->wireframe ? GL_LINE : GL_FILL);
-    }
+    // Single casting and safety check at the top
+    auto *state = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
+    if (!state) return;
 
-    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+    if (action == GLFW_PRESS)
     {
-        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-        if (!s) return;
-        s->shaderState = NORMAL;
-    }
-
-    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-    {
-        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-        if (!s) return;
-        s->shaderState = GREYSCALE;
-    }
-
-    if (key == GLFW_KEY_3 && action == GLFW_PRESS)
-    {
-        auto *s = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
-        if (!s) return;
-        s->shaderState = NEGATIVE;
+        if (key == GLFW_KEY_SPACE)
+        {
+            state->wireframe = !state->wireframe;
+            glPolygonMode(GL_FRONT_AND_BACK, state->wireframe ? GL_LINE : GL_FILL);
+        } else if (key == GLFW_KEY_1)
+        {
+            state->shaderState = NORMAL;
+        } else if (key == GLFW_KEY_2)
+        {
+            state->shaderState = GREYSCALE;
+        } else if (key == GLFW_KEY_3)
+        {
+            state->shaderState = NEGATIVE;
+        }
     }
 }
 
@@ -73,13 +66,11 @@ inline void processInput(GLFWwindow *window, Camera &camera, const float deltaTi
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera.processKeyboard(BACKWARD, deltaTime);
-
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.processKeyboard(RIGHT, deltaTime);
 }
 
 
-// --- MOUSE CALLBACK ---
 inline void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
 {
     auto *state = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
@@ -100,16 +91,13 @@ inline void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
 
     state->lastX = xpos;
     state->lastY = ypos;
-
     state->pCamera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 
-// --- SCROLL CALLBACK ---
 inline void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
-    auto *state = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
+    const auto *state = static_cast<WindowState *>(glfwGetWindowUserPointer(window));
     if (!state || !state->pCamera) return; // Safety check
-
     state->pCamera->ProcessMouseScroll(static_cast<float>(yoffset));
 }

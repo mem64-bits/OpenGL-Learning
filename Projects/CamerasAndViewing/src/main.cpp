@@ -9,6 +9,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 int main()
 {
@@ -37,6 +40,17 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    // 1. Initialize ImGui Context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
+    ImGui::StyleColorsDark();
+
+    // 2. Initialize Backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 
     // Get the actual framebuffer size (accounts for DPI scaling)
     int framebufferWidth, framebufferHeight;
@@ -169,23 +183,33 @@ int main()
         float currentFrame = timeValue;
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        processInput(window, camera, deltaTime);
+
+        // Start the ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Build the FPS Counter Window
+        ImGui::SetNextWindowPos(ImVec2(10, 10));
+        ImGui::Begin("Performance", nullptr,
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground);
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "FPS: %.1f", 1.0f / deltaTime); // Yellow text
+        ImGui::End();
 
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        processInput(window, camera, deltaTime);
 
         shader.use();
         tex.bindTexture(0);
         shader.setUniform<int>("shaderState", state.shaderState);
         glBindVertexArray(VAO);
 
-
         glm::mat4 view = camera.getViewMatrix();
         shader.setUniform<glm::mat4>("view", view);
 
         const glm::mat4 projection = camera.getProjectionMatrix(winWidth, winHeight);
         shader.setUniform<glm::mat4>("projection", projection);
-
 
         for (unsigned int i = 0; i < std::size(cubePositions); i++)
         {
@@ -210,6 +234,9 @@ int main()
             // A cube has 36 vertices  (6 faces * 2 triangles * 3 vertices each)
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        // Render ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
