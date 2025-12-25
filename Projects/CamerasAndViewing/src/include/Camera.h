@@ -86,10 +86,11 @@ public:
         return glm::lookAt(m_Pos, m_Pos + m_Front, m_Up);
     }
 
-    [[nodiscard]] glm::mat4 getProjectionMatrix(const float width, const float height, float zNear = 0.1f,
+    [[nodiscard]] glm::mat4 getProjectionMatrix(const int width, const int height, float zNear = 0.1f,
                                                 float zFar = 100.f) const
     {
-        return glm::perspective(glm::radians(m_FOV), (width / height), 0.1f, 100.0f);
+        return glm::perspective(glm::radians(m_FOV), static_cast<float>(width) / static_cast<float>(height), 0.1f,
+                                100.0f);
     }
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -152,6 +153,7 @@ public:
 
     [[nodiscard]] float getPitch() const { return m_Pitch; }
     void setPitch(const float pitch) { m_Pitch = pitch; }
+
     [[nodiscard]] float getSpeed() const { return m_Speed; }
     void setSpeed(const float speed) { m_Speed = speed; }
 

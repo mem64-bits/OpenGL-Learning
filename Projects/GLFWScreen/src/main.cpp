@@ -36,6 +36,9 @@ int main()
     }
     glfwMakeContextCurrent(window);
 
+    //Vsync Option
+
+
     // Initializes GLAD 
     if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
     {

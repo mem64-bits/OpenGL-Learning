@@ -17,7 +17,7 @@ struct WindowState
     float lastY = 0.0f;
     ShaderState shaderState = NORMAL;
     bool wireframe = false;
-    bool firstMouse = false;
+    bool firstMouse = true;
 };
 
 // automatically resizes the viewport when the window size is changed
@@ -84,6 +84,7 @@ inline void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
         state->lastX = xpos;
         state->lastY = ypos;
         state->firstMouse = false;
+        return;
     }
 
     float xoffset = xpos - state->lastX;
