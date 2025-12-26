@@ -1,1 +1,1 @@
-create_lesson(ShaderClass)
+create_lesson(ShaderClass LEGACY)

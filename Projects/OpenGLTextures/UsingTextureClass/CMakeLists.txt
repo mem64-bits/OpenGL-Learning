@@ -1,1 +1,1 @@
-create_lesson(UsingTextureClass)
+create_lesson(UsingTextureClass LEGACY)

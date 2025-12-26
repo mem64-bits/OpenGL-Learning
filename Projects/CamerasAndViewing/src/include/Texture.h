@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/gl.h>
 #include "ImageLoader.h"
+#include <string>
 
 struct TextureParameters
 {
@@ -23,58 +24,13 @@ public:
 
     Texture(const Texture &) = delete;
 
-    ~Texture()
-    {
-        glDeleteTextures(1, &m_TextureID);
-    }
+    ~Texture();
 
-    explicit Texture(const std::string &path, const TextureParameters &params = {})
-        : m_Filepath(path),
-          m_TextureID(0),
-          m_Width(0),
-          m_Height(0)
-    {
-        const ImageLoader img(path);
-        if (!img.imageLoaded())
-        {
-            std::cerr << "[Texture] Error: Failed to load image: " << path << std::endl;
-            return;
-        }
-        m_Width = img.getWidth();
-        m_Height = img.getHeight();
+    explicit Texture(const std::string &path, const TextureParameters &params = {});
 
-        glGenTextures(1, &m_TextureID);
-        glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    void bindTexture(const unsigned int slot = 0) const;
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.magFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.wrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.wrapT);
+    int getWidth() const;
 
-        if (img.getNrChannels() == 3)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getImage());
-            glGenerateMipmap(GL_TEXTURE_2D);
-        } else if (img.getNrChannels() == 4)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getImage());
-            glGenerateMipmap(GL_TEXTURE_2D);
-        } else
-        {
-            std::cerr << "[Texture] Error: Unsupported image format: " << path << std::endl;
-            glDeleteTextures(1, &m_TextureID);
-            m_TextureID = 0;
-            return;
-        }
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    void bindTexture(const unsigned int slot = 0) const
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, m_TextureID);
-    }
-
-    int getWidth() const { return m_Width; }
-    int getHeight() const { return m_Height; }
+    int getHeight() const;
 };

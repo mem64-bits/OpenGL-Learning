@@ -1,1 +1,1 @@
-create_lesson(MultipleFragmentShaders)
+create_lesson(MultipleFragmentShaders LEGACY)

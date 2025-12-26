@@ -15,7 +15,7 @@
 
 int main()
 {
-    core::Window window({ .name = "CamerasAndViewing", .vSync = true });
+    core::Window window({ .name = "Colours", .vSync = true });
     glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window.getGLFWWindow(), framebuffer_size_callback);
 
@@ -105,7 +105,7 @@ int main()
 
     /* Defines our Camera class to automatically change our view and perspective
      * matrices to simulate a camera */
-    core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 0.25f), .Speed = 7.5f, .MouseSens = 0.08f });
+    core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 5.0f), .Speed = 7.5f, .MouseSens = 0.1f });
     state.pCamera = & camera;
 
     // For 3D rendering we need to enable the z buffer

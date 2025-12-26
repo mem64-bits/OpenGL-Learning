@@ -1,1 +1,1 @@
-create_lesson(Triforce)
+create_lesson(Triforce LEGACY)

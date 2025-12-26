@@ -1,1 +1,1 @@
-create_lesson(GLSLDatatypes)
+create_lesson(GLSLDatatypes LEGACY)

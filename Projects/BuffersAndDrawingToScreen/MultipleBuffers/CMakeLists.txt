@@ -1,1 +1,1 @@
-create_lesson(MultipleBuffers)
+create_lesson(MultipleBuffers LEGACY)

@@ -1,1 +1,1 @@
-create_lesson(MultipleAttributes)
+create_lesson(MultipleAttributes LEGACY)

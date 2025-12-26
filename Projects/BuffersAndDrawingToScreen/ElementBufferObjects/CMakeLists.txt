@@ -1,1 +1,1 @@
-create_lesson(ElementBufferObjects)
+create_lesson(ElementBufferObjects LEGACY)

@@ -1,1 +1,1 @@
-create_lesson(SharingDataBetweenShaders)
+create_lesson(SharingDataBetweenShaders LEGACY)

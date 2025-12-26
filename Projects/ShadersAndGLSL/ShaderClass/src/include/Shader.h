@@ -13,7 +13,7 @@
 class Shader
 {
 private:
-    unsigned int shaderProgram;
+    unsigned int m_ShaderProgram;
     // Cache for uniform locations to improve performance
     mutable std::unordered_map<std::string, int> m_UniformLocationCache;
 
@@ -65,11 +65,11 @@ public:
         checkShaderCompileStatus(fragmentShader);
 
         // creates shader program and attaches vertex and fragment shaders
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-        checkShaderProgramStatus(shaderProgram);
+        m_ShaderProgram = glCreateProgram();
+        glAttachShader(m_ShaderProgram, vertexShader);
+        glAttachShader(m_ShaderProgram, fragmentShader);
+        glLinkProgram(m_ShaderProgram);
+        checkShaderProgramStatus(m_ShaderProgram);
 
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
@@ -78,13 +78,13 @@ public:
     // deletes shader program when a class goes out of scope
     ~Shader()
     {
-        glDeleteProgram(shaderProgram);
+        glDeleteProgram(m_ShaderProgram);
     }
 
     // Activates the shader program
     void use() const
     {
-        glUseProgram(shaderProgram);
+        glUseProgram(m_ShaderProgram);
     }
     
     // The single, templated uniform setter to avoid multiple methods for GLSL Types
@@ -135,7 +135,7 @@ private:
         }
 
         // If not, retrieve it from OpenGL
-        const int location = glGetUniformLocation(shaderProgram, name.c_str());
+        const int location = glGetUniformLocation(m_ShaderProgram, name.c_str());
         if (location == -1)
         {
             std::cerr << "Warning: uniform '" << name << "' not found!" << std::endl;

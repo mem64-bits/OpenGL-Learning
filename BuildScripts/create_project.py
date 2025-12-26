@@ -1,6 +1,6 @@
 import os
 import re
-import shutil # Added for safer binary copying
+import shutil  # Added for safer binary copying
 
 try:
     from BuildScripts import gen_lesson_configs
@@ -15,19 +15,16 @@ DEFAULT_CATEGORY = "Projects"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = os.path.join(SCRIPT_DIR, "templates")
 
-# Map logic: "Output Path inside Project" : "Template Filename"
+# Map logic: "Output Path inside Project": "Template Filename"
+# NOTICE: Removed engine-specific headers/cpps as they now live in /core
 FILE_MAPPINGS = {
     "src/main.cpp": "src/main.cpp",
-    "src/stb_define.cpp": "src/stb_define.cpp",
-    "src/include/glfwCallBacks.h": "include/glfwCallBacks.h",
-    "src/include/Shader.h": "include/Shader.h",
-    "src/include/Texture.h": "include/Texture.h",
-    "src/include/ImageLoader.h": "include/ImageLoader.h",
     "assets/shaders/shader.vert": "shaders/shader.vert",
     "assets/shaders/shader.frag": "shaders/shader.frag",
     "assets/textures/fire.png": "textures/fire.png",
-    "assets/textures/wall.jpg": "textures/wall.jpg"
+    "assets/textures/wall.jpg": "textures/wall.jpg",
 }
+
 
 def sanitize_name(name):
     # FIXED: Enforces PascalCase without destroying existing capitalization
@@ -35,6 +32,7 @@ def sanitize_name(name):
     # Example: "CoordinateSystems" -> "CoordinateSystems"
     words = re.split(r"[^a-zA-Z0-9]", name)
     return "".join(word[0].upper() + word[1:] for word in words if word)
+
 
 def run(root_dir, cli_name=None, cli_category=None):
     print("Creating a New Project")
@@ -85,14 +83,14 @@ def run(root_dir, cli_name=None, cli_category=None):
         # Create directory if needed
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
-        # Check if source exists
+        # Check if a source exists
         if not os.path.exists(src_template):
             print(f"Warning: Template '{template_name}' missing. Skipping.")
             continue
 
         # FIXED: Binary File Handling
-        # If it's an image, just copy bytes. If text, replace placeholders.
-        if template_name.lower().endswith(('.png', '.jpg', '.jpeg', '.tga', '.bmp')):
+        # If it's an image, just copy bytes. If texted, replace placeholders.
+        if template_name.lower().endswith((".png", ".jpg", ".jpeg", ".tga", ".bmp")):
             try:
                 shutil.copy2(src_template, dest_path)
             except IOError as e:
@@ -114,12 +112,40 @@ def run(root_dir, cli_name=None, cli_category=None):
     print(f"Project created at: {target_dir}")
 
     # 5. Auto-Update CMake
+    # FIXED: Implements recursive upward walk but STOPS before the root
     print("\nUpdating Build System...")
-    gen_lesson_configs.run(root_dir)
-    parent_dir = os.path.dirname(target_dir)
-    gen_subdir_cmake.run(parent_dir)
 
-    print("\nReady to build!")
+    # Refresh the global lesson configurations
+    gen_lesson_configs.run(root_dir)
+
+    # Start from the parent folder of the new project
+    current_level = os.path.dirname(target_dir)
+    root_abs = os.path.abspath(root_dir)
+
+    while True:
+        current_abs = os.path.abspath(current_level)
+
+        # STOP CRITICAL: Do not run subdir_cmake on the root directory.
+        # The root has the Master CMakeLists.txt and must be protected.
+        if current_abs == root_abs:
+            break
+
+        # Display progress relative to root
+        rel_display = os.path.relpath(current_abs, root_abs)
+        print(f"  Updating CMake: {rel_display}")
+
+        # Generate/Update the CMakeLists.txt for this specific folder
+        gen_subdir_cmake.run(current_level)
+
+        # Move one folder up
+        parent = os.path.dirname(current_level)
+        if parent == current_level:  # Safety break for drive root
+            break
+        current_level = parent
+
+    print("\n✅ Build system hierarchy updated! Ready to build.")
+
 
 if __name__ == "__main__":
+    # Standard entry point: gets the root directory relative to the script location
     run(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

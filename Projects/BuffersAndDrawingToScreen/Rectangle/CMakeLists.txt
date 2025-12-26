@@ -1,1 +1,1 @@
-create_lesson(Rectangle)
+create_lesson(Rectangle LEGACY)

@@ -1,1 +1,1 @@
-create_lesson(CoordinateSystems)
+create_lesson(CoordinateSystems LEGACY)

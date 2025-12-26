@@ -1,1 +1,1 @@
-create_lesson(GLSLStructure)
+create_lesson(GLSLStructure LEGACY)

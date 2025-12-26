@@ -1,1 +1,1 @@
-create_lesson(VertexShaderAttributes)
+create_lesson(VertexShaderAttributes LEGACY)

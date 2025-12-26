@@ -1,8 +1,8 @@
 #include <glad/gl.h>
 #include  <GLFW/glfw3.h>
-#include "GLFWCallbacks.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "include/GLFWCallbacks.h"
+#include "include/Shader.h"
+#include "include/Texture.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,7 +13,7 @@ int main()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // the next version to try if major version fails
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);// the next version to try if major version fails
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Fixes scaling problems on wayland linux
@@ -23,79 +23,79 @@ int main()
 
     constexpr int winWidth = 800;
     constexpr int winHeight = 600;
-    GLFWwindow *window = glfwCreateWindow(winWidth, winHeight, "Coordinate Systems", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(winWidth, winHeight, "Coordinate Systems", nullptr, nullptr);
 
-    if (window == nullptr)
+    if(window == nullptr)
     {
         std::cerr << "Failed to setup GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        return - 1;
     }
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGL((GLADloadfunc) glfwGetProcAddress))
+    if(!gladLoadGL(( GLADloadfunc )glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        return - 1;
     }
 
     // Get the actual framebuffer size (accounts for DPI scaling)
     int framebufferWidth, framebufferHeight;
-    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+    glfwGetFramebufferSize(window, & framebufferWidth, & framebufferHeight);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     WindowState state{};
-    glfwSetWindowUserPointer(window, &state);
+    glfwSetWindowUserPointer(window, & state);
 
     glfwSetKeyCallback(window, key_callback);
 
     // Uses our new shader object cutting down on boilerplate code
-    Shader shader{"assets/shaders/shader.vert", "assets/shaders/shader.frag"};
+    Shader shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
 
     // Vertex data needed for a 3D Cube Object (Using modern std::vector<>)
     const std::vector<float> vertices = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
+        0.5f, - 0.5f, - 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
+        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        - 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
 
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        - 0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
+        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        0.5f, - 0.5f, - 0.5f, 1.0f, 1.0f,
+        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
+        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
 
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+        - 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f
     };
 
     unsigned int VAO;
@@ -103,8 +103,8 @@ int main()
     const Texture tex = Texture("assets/textures/wall.jpg");
 
     // Creates Buffers need for VAO,VBO
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, & VAO);
+    glGenBuffers(1, & VBO);
 
     // Saves buffer config to VAO
     glBindVertexArray(VAO);
@@ -114,11 +114,11 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ( void * )0);
     glEnableVertexAttribArray(0);
 
     // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ( void * )(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -152,8 +152,8 @@ int main()
 
     // The projection matrix defines the frustum of viewing into the scene
     const glm::mat4 projection = glm::perspective(
-        glm::radians(45.0f), static_cast<float>(winWidth) /
-                             static_cast<float>(winHeight), 0.1f, 100.0f);
+        glm::radians(45.0f), static_cast<float>( winWidth ) /
+                             static_cast<float>( winHeight ), 0.1f, 100.0f);
 
     // For 3D rendering we need to enable the z buffer
     glEnable(GL_DEPTH_TEST);
@@ -165,19 +165,19 @@ int main()
     // We can now define cubes positions anywhere in the global world space
     const std::vector<glm::vec3> cubePositions = {
         glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)
+        glm::vec3(2.0f, 5.0f, - 15.0f),
+        glm::vec3(- 1.5f, - 2.2f, - 2.5f),
+        glm::vec3(- 3.8f, - 2.0f, - 12.3f),
+        glm::vec3(2.4f, - 0.4f, - 3.5f),
+        glm::vec3(- 1.7f, 3.0f, - 7.5f),
+        glm::vec3(1.3f, - 2.0f, - 2.5f),
+        glm::vec3(1.5f, 2.0f, - 2.5f),
+        glm::vec3(1.5f, 0.2f, - 1.5f),
+        glm::vec3(- 1.3f, 1.0f, - 1.5f)
     };
 
 
-    while (!glfwWindowShouldClose(window))
+    while(!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -191,31 +191,31 @@ int main()
 
         // The view matrix defines the position the camera is within the 3D world context
         glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, - 3.0f));
 
         // Sets matrices needed for camera position and camera view
         shader.setUniform<glm::mat4>("projection", projection);
         shader.setUniform<glm::mat4>("view", view);
-        const float timeValue = static_cast<float>(glfwGetTime());
+        const float timeValue = static_cast<float>( glfwGetTime() );
 
-        for (unsigned int i = 0; i < std::size(cubePositions); i++)
+        for(unsigned int i = 0; i < std::size(cubePositions); i++)
         {
             /* We need to update the model matrix for each cube every frame
              * as transformations need to be updated every frame*/
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
 
-            if (i % 2 == 0)
+            if(i % 2 == 0)
             {
                 model = glm::rotate(model, timeValue, glm::vec3(1.0f, 1.0f, 1.0f));
             }
-            if (i % 2 != 0)
+            if(i % 2 != 0)
             {
-                model = glm::rotate(model, timeValue, glm::vec3(0.0f, -1.0f, 0.0f));
+                model = glm::rotate(model, timeValue, glm::vec3(0.0f, - 1.0f, 0.0f));
             }
-            if (i % 3 == 0)
+            if(i % 3 == 0)
             {
-                model = glm::rotate(model, timeValue, glm::vec3(-1.0f, 1.0f, -1.0f));
+                model = glm::rotate(model, timeValue, glm::vec3(- 1.0f, 1.0f, - 1.0f));
             }
 
             const float rotateAngle = 20.0f * i;
@@ -229,8 +229,8 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, & VAO);
+    glDeleteBuffers(1, & VBO);
     glfwTerminate();
     return 0;
 }

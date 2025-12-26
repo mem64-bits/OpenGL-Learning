@@ -1,1 +1,1 @@
-create_lesson(FragmentShaderGradients)
+create_lesson(FragmentShaderGradients LEGACY)
