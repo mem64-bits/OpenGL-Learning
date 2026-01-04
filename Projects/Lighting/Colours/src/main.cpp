@@ -15,98 +15,99 @@
 
 int main()
 {
-    core::Window window({ .name = "Colours", .vSync = true });
+    core::Window window({ .name = "OpenGL Lighting: Colours", .vSync = true });
     glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window.getGLFWWindow(), framebuffer_size_callback);
 
     WindowState state{};
     state.lastX = static_cast<float>( window.getFramebufferWidth() ) / 2.0f;
     state.lastY = static_cast<float>( window.getFramebufferHeight() ) / 2.0f;
-    glfwSetWindowUserPointer(window.getGLFWWindow(), & state);
+    glfwSetWindowUserPointer(window.getGLFWWindow(), &state);
 
     glfwSetKeyCallback(window.getGLFWWindow(), key_callback);
     glfwSetCursorPosCallback(window.getGLFWWindow(), mouse_callback);
     glfwSetScrollCallback(window.getGLFWWindow(), scroll_callback);
 
-
-    core::Shader shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
+    // Sets up shaders for the cube and light source
+    core::Shader cubeShader{ "assets/shaders/shader.vert", "assets/shaders/cubeShader.frag" };
+    core::Shader lightingShader{ "assets/shaders/shader.vert", "assets/shaders/lightingShader.frag" };
 
     const std::vector<float> vertices = {
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
-        0.5f, - 0.5f, - 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        - 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,
 
-        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
 
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
 
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f
     };
 
-    unsigned int VAO;
+    unsigned int cubeVAO;
+    unsigned int lightVAO;
     unsigned int VBO;
-    const core::Texture tex = core::Texture("assets/textures/wall.jpg");
 
-    glGenVertexArrays(1, & VAO);
-    glGenBuffers(1, & VBO);
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &cubeVAO);
+    glGenVertexArrays(1, &lightVAO);
+    glGenBuffers(1, &VBO);
 
+    // Set up for cubeVAO
+    glBindVertexArray(cubeVAO);
     // VBO setup
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ( void * )0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
-
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), ( void * )(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Sends texture data to frag shader using uniforms
-    shader.setUniform<int>("tex", 0);
-    shader.use();
+    // Sets up light VAO
+    glBindVertexArray(lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
 
 
     /* Defines our Camera class to automatically change our view and perspective
      * matrices to simulate a camera */
-    core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 5.0f), .Speed = 7.5f, .MouseSens = 0.1f });
-    state.pCamera = & camera;
+    core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 6.0f), .Speed = 7.5f, .MouseSens = 0.1f });
+    state.pCamera = &camera;
 
     // For 3D rendering we need to enable the z buffer
     glEnable(GL_DEPTH_TEST);
@@ -116,6 +117,7 @@ int main()
 
     core::FPSCounter fps;
     window.setClearColour(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
     while(!window.shouldClose())
     {
@@ -127,29 +129,44 @@ int main()
         window.beginImgui();
         fps.drawUI();
 
-        shader.use();
-        tex.bindTexture(0);
-        shader.setUniform<int>("shaderState", state.shaderState);
-        glBindVertexArray(VAO);
-
+        cubeShader.use();
         glm::mat4 view = camera.getViewMatrix();
-        shader.setUniform<glm::mat4>("view", view);
-        const glm::mat4 projection = camera.getProjectionMatrix(window.getFramebufferWidth(),
-                                                                window.getFramebufferHeight());
-        shader.setUniform<glm::mat4>("projection", projection);
+        glm::mat4 projection = camera.getProjectionMatrix(window.getFramebufferWidth(), window.getFramebufferHeight());
+        cubeShader.setUniform<glm::mat4>("view", view);
+        cubeShader.setUniform<glm::mat4>("projection", projection);
+
+        cubeShader.setUniform<glm::vec3>("objectColour", glm::vec3(1.0f, 0.5f, 0.31f));
+        cubeShader.setUniform<glm::vec3>("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
 
         auto model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, - 3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
         model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(1.0f, 1.0f, 1.0f));
-        shader.setUniform<glm::mat4>("model", model);
+        model = glm::scale(model, glm::vec3(3.0f));
+        cubeShader.setUniform<glm::mat4>("model", model);
 
+        glBindVertexArray(cubeVAO);// Use the CUBE VAO
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+        lightingShader.use();
+        lightingShader.setUniform<glm::mat4>("view", view);
+        lightingShader.setUniform<glm::mat4>("projection", projection);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));// Make the lamp smaller
+        lightingShader.setUniform<glm::mat4>("model", model);
+
+        glBindVertexArray(lightVAO);// Use the LIGHT VAO
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         window.endImgui();
         window.swapBuffers();
         window.pollEvents();
     }
-    glDeleteVertexArrays(1, & VAO);
-    glDeleteBuffers(1, & VBO);
+    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &lightVAO);
+    glDeleteBuffers(1, &VBO);
     glfwTerminate();
     return 0;
 }

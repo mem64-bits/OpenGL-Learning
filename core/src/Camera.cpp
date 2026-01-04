@@ -1,7 +1,6 @@
 #include <Camera.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-
 namespace core
 {
     void Camera::updateCameraVectors()
@@ -16,15 +15,18 @@ namespace core
     }
 
     Camera::Camera(const CameraOptions& options)
-        : m_Pos(options.Pos), m_WorldUp(options.WorldUp), m_Yaw(options.Yaw), m_Pitch(options.Pitch),
-          m_Speed(options.Speed), m_FOV(options.FOV), m_MouseSens(options.MouseSens)
+        : m_Pos(options.Pos), m_WorldUp(options.WorldUp), m_ZNear(options.zNear),
+          m_ZFar(options.zFar), m_Yaw(options.Yaw), m_Pitch(options.Pitch),
+          m_Speed(options.Speed), m_FOV(options.FOV), m_MouseSens(options.MouseSens),
+          m_StartOptions(options)
     {
         updateCameraVectors();
     }
 
-    Camera::Camera(const glm::vec3 pos, const glm::vec3 worldUp, const float yaw, const float pitch, const float speed,
+    Camera::Camera(const glm::vec3 pos, const glm::vec3 worldUp, const float zNear, const float zFar, const float yaw,
+                   const float pitch, const float speed,
                    const float fov, const float mouseSens)
-        : m_Pos(pos), m_WorldUp(worldUp), m_Yaw(yaw), m_Pitch(pitch),
+        : m_Pos(pos), m_WorldUp(worldUp), m_ZNear(zNear), m_ZFar(zFar), m_Yaw(yaw), m_Pitch(pitch),
           m_Speed(speed), m_FOV(fov), m_MouseSens(mouseSens)
     {
         updateCameraVectors();
@@ -59,7 +61,7 @@ namespace core
         if(constrainPitch)
         {
             if(m_Pitch > 89.0f) m_Pitch = 89.0f;
-            if(m_Pitch < - 89.0f) m_Pitch = - 89.0f;
+            if(m_Pitch < -89.0f) m_Pitch = -89.0f;
         }
         updateCameraVectors();
     }
@@ -92,4 +94,18 @@ namespace core
 
     glm::vec3 Camera::getWorldUp() const { return m_WorldUp; }
     void Camera::setWorldUp(const glm::vec3& worldUp) { m_WorldUp = worldUp; }
+
+    void Camera::reset()
+    {
+        m_Pos = m_StartOptions.Pos;
+        m_WorldUp = m_StartOptions.WorldUp;
+        m_ZNear = m_StartOptions.zNear;
+        m_ZFar = m_StartOptions.zFar;
+        m_Yaw = m_StartOptions.Yaw;
+        m_Pitch = m_StartOptions.Pitch;
+        m_Speed = m_StartOptions.Speed;
+        m_FOV = m_StartOptions.FOV;
+        m_MouseSens = m_StartOptions.MouseSens;
+        updateCameraVectors();
+    }
 }

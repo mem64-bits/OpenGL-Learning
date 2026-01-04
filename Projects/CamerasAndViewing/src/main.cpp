@@ -1,9 +1,9 @@
+#include <array>
 #include <glad/gl.h>
 #include  <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
 
 #include <Camera.h>
 #include <Window.h>
@@ -22,7 +22,7 @@ int main()
     WindowState state{};
     state.lastX = static_cast<float>( window.getFramebufferWidth() ) / 2.0f;
     state.lastY = static_cast<float>( window.getFramebufferHeight() ) / 2.0f;
-    glfwSetWindowUserPointer(window.getGLFWWindow(), & state);
+    glfwSetWindowUserPointer(window.getGLFWWindow(), &state);
 
     glfwSetKeyCallback(window.getGLFWWindow(), key_callback);
     glfwSetCursorPosCallback(window.getGLFWWindow(), mouse_callback);
@@ -32,55 +32,68 @@ int main()
     core::Shader shader{ "assets/shaders/shader.vert", "assets/shaders/shader.frag" };
 
     const std::vector<float> vertices = {
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
-        0.5f, - 0.5f, - 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        - 0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
 
-        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, - 0.5f, - 0.5f, 1.0f, 1.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, - 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, - 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, - 0.5f, - 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
 
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, - 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        - 0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        - 0.5f, 0.5f, - 0.5f, 0.0f, 1.0f
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+    };
+
+    std::array cubePositions = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
     };
 
     unsigned int VAO;
     unsigned int VBO;
     const core::Texture tex = core::Texture("assets/textures/wall.jpg");
 
-    glGenVertexArrays(1, & VAO);
-    glGenBuffers(1, & VBO);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
 
     // VBO setup
@@ -106,7 +119,7 @@ int main()
     /* Defines our Camera class to automatically change our view and perspective
      * matrices to simulate a camera */
     core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 0.25f), .Speed = 7.5f, .MouseSens = 0.08f });
-    state.pCamera = & camera;
+    state.pCamera = &camera;
 
     // For 3D rendering we need to enable the z buffer
     glEnable(GL_DEPTH_TEST);
@@ -138,18 +151,40 @@ int main()
                                                                 window.getFramebufferHeight());
         shader.setUniform<glm::mat4>("projection", projection);
 
-        auto model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, - 3.0f));
-        model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(1.0f, 1.0f, 1.0f));
-        shader.setUniform<glm::mat4>("model", model);
+        for(std::size_t i = 0; i < cubePositions.size(); i++)
+        {
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            if(i % 2 == 0)
+            {
+                model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(1.0f, 1.0f, 1.0f));
+            }
+            if(i % 2 != 0)
+            {
+                model = glm::rotate(model, static_cast<float>( window.getWindowTime() ),
+                                    glm::vec3(-1.0f, -1.0f, -1.0f));
+            }
+            if(i % 3 == 0)
+            {
+                model = glm::rotate(model, static_cast<float>( window.getWindowTime() ),
+                                    glm::vec3(1.0f, -1.0f, -1.0f));
+            }
+
+            if(i % 4 == 0)
+            {
+                model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(-1.0f, 1.0f, 1.0f));
+            }
+            shader.setUniform<glm::mat4>("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
         window.endImgui();
         window.swapBuffers();
         window.pollEvents();
     }
-    glDeleteVertexArrays(1, & VAO);
-    glDeleteBuffers(1, & VBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
     glfwTerminate();
     return 0;
 }

@@ -26,11 +26,11 @@ namespace core
 
         // The single, templated uniform setter to avoid multiple methods for GLSL Types
         template <typename T>
-        void setUniform(const std::string& name, const T& value)
+        void setUniform(const std::string& name, const T& value) const
         {
             int location = getUniformLocation(name);
 
-            // Evaluates types at compile time to optimise away checks at runtime
+            // Evaluates types at compile time to optimize away checks at runtime
             if constexpr(std::is_same_v<T, bool>)
             {
                 glUniform1i(location, static_cast<int>( value ));
@@ -65,8 +65,8 @@ namespace core
         // Caches uniform location to avoid getting it every frame
         int getUniformLocation(const std::string& name) const;
 
-        static void checkShaderCompileStatus(unsigned int shader);
+        void checkShaderCompileStatus(unsigned int shader) const;
 
-        static void checkShaderProgramStatus(unsigned int program);
+        void checkShaderProgramStatus(unsigned int program) const;
     };
 }

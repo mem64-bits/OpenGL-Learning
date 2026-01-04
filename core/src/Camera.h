@@ -8,7 +8,9 @@ namespace core
     {
         glm::vec3 Pos = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-        float Yaw = - 90.0f;
+        float zNear = 0.1f;
+        float zFar = 100.0f;
+        float Yaw = -90.0f;
         float Pitch = 0.0f;
         float Speed = 2.5f;
         float FOV = 45.0f;
@@ -20,8 +22,15 @@ namespace core
     class Camera
     {
     private:
-        glm::vec3 m_Pos, m_Up, m_WorldUp, m_Front, m_Right;
-        float m_Yaw, m_Pitch, m_Speed, m_FOV, m_MouseSens;
+        glm::vec3 m_Pos, m_Up, m_WorldUp;
+        glm::vec3 m_Front, m_Right;
+        float m_ZNear, m_ZFar;
+        float m_Yaw, m_Pitch, m_Speed;
+        float m_FOV;
+        float m_MouseSens;
+
+        // Stores starting options to revert to when needed
+        const CameraOptions m_StartOptions;
 
         void updateCameraVectors();
 
@@ -29,7 +38,8 @@ namespace core
         // Default arguments MUST stay in the header
         explicit Camera(const CameraOptions& options = {});
 
-        Camera(glm::vec3 pos, glm::vec3 worldUp, float yaw, float pitch, float speed, float fov, float mouseSens);
+        Camera(glm::vec3 pos, glm::vec3 worldUp, float zNear, float zFar, float yaw, float pitch, float speed,
+               float fov, float mouseSens);
 
         [[nodiscard]] glm::mat4 getViewMatrix() const;
 
@@ -70,5 +80,8 @@ namespace core
         [[nodiscard]] glm::vec3 getWorldUp() const;
 
         void setWorldUp(const glm::vec3& worldUp);
+
+        void reset();
     };
 }
+

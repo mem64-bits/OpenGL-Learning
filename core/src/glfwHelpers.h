@@ -12,7 +12,7 @@ enum ShaderState
 
 struct WindowState
 {
-    core::Camera* pCamera = nullptr;;
+    core::Camera* pCamera = nullptr;
     float lastX = 0.0f;
     float lastY = 0.0f;
     ShaderState shaderState = NORMAL;
@@ -68,6 +68,9 @@ inline void processInput(GLFWwindow* window, core::Camera& camera, const float d
         camera.processKeyboard(core::BACKWARD, deltaTime);
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.processKeyboard(core::RIGHT, deltaTime);
+
+    if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        camera.reset();
 }
 
 

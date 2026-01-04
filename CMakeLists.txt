@@ -176,28 +176,45 @@ function(create_lesson TARGET_NAME)
     endif ()
 
     if (MSVC)
-        target_compile_options(${TARGET_NAME} PRIVATE /W4 /external:W3 /permissive- /GS /MP
-                $<$<CONFIG:Release>:/O2 /Oi /Gy /arch:AVX2>)
+        target_compile_options(${TARGET_NAME} PRIVATE /W4 /external:W3 /permissive- /GS /MP /w44388 /w44245
+                $<$<CONFIG:Release>:/O2 /Oi /Gy /arch:AVX2>
+                $<$<CONFIG:Debug>:/Zi /RTC1>)
+
+        target_compile_definitions(${TARGET_NAME} PRIVATE $<$<CONFIG:Release>:NDEBUG>)
+
+        # Ensures Debug builds generate PDBs for CLion/VS Debugger
+        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/DEBUG")
+
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # -Wsign-compare & -Wsign-conversion: Catch unsigned errors
+        target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic -Wsign-compare -Wsign-conversion
+                $<$<CONFIG:Release>:-O3 -mavx2 -mfma>
+                $<$<CONFIG:Debug>:-g3 -Og -D_GLIBCXX_DEBUG -fno-omit-frame-pointer>)
+
         target_compile_definitions(${TARGET_NAME} PRIVATE $<$<CONFIG:Release>:NDEBUG>)
     endif ()
 
-    # Copies assets to build folder if changed
     if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets")
-        file(GLOB_RECURSE ASSET_FILES "${CMAKE_CURRENT_SOURCE_DIR}/assets/*")
+        file(GLOB_RECURSE ASSET_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/assets/*")
         set(COPIED_ASSETS "")
 
         foreach (ASSET_SOURCE_PATH ${ASSET_FILES})
             file(RELATIVE_PATH ASSET_REL_PATH "${CMAKE_CURRENT_SOURCE_DIR}" "${ASSET_SOURCE_PATH}")
             set(ASSET_DEST_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASSET_REL_PATH}")
-            add_custom_command(OUTPUT ${ASSET_DEST_PATH}
+
+            add_custom_command(
+                    OUTPUT ${ASSET_DEST_PATH}
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASSET_SOURCE_PATH} ${ASSET_DEST_PATH}
-                    DEPENDS ${ASSET_SOURCE_PATH})
+                    DEPENDS ${ASSET_SOURCE_PATH}
+                    COMMENT "Syncing asset: ${ASSET_REL_PATH}"
+            )
             list(APPEND COPIED_ASSETS ${ASSET_DEST_PATH})
         endforeach ()
 
         add_custom_target(copy_assets_${TARGET_NAME} ALL DEPENDS ${COPIED_ASSETS})
         add_dependencies(${TARGET_NAME} copy_assets_${TARGET_NAME})
     endif ()
+
     set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 endfunction()
 

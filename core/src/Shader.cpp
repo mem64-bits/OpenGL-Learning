@@ -45,13 +45,13 @@ namespace core
 
         // compiles vertex shader from shader source code
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, & vShaderCode, nullptr);
+        glShaderSource(vertexShader, 1, &vShaderCode, nullptr);
         glCompileShader(vertexShader);
         checkShaderCompileStatus(vertexShader);
 
         // compiles fragment shader from shader source code
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, & fShaderCode, nullptr);
+        glShaderSource(fragmentShader, 1, &fShaderCode, nullptr);
         glCompileShader(fragmentShader);
         checkShaderCompileStatus(fragmentShader);
 
@@ -84,12 +84,13 @@ namespace core
         // Check if we already have this location in our cache
         if(m_UniformLocationCache.contains(name))
         {
+            // O(1) time
             return m_UniformLocationCache[name];
         }
 
         // If not, retrieve it from OpenGL
         const int location = glGetUniformLocation(m_ShaderProgram, name.c_str());
-        if(location == - 1)
+        if(location == -1)
         {
             std::cerr << "Warning: uniform '" << name << "' not found!" << std::endl;
         }
@@ -100,17 +101,17 @@ namespace core
     }
 
 
-    void Shader::checkShaderCompileStatus(const unsigned int shader)
+    void Shader::checkShaderCompileStatus(const unsigned int shader) const
     {
         int success;
         char infoLog[512];
-        glGetShaderiv(shader, GL_COMPILE_STATUS, & success);
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
         if(!success)
         {
             int shaderType;
             std::string shaderName{ "Unknown Shader" };
-            glGetShaderiv(shader, GL_SHADER_TYPE, & shaderType);
+            glGetShaderiv(shader, GL_SHADER_TYPE, &shaderType);
 
             switch(shaderType)
             {
@@ -130,12 +131,12 @@ namespace core
         }
     }
 
-    void Shader::checkShaderProgramStatus(const unsigned int program)
+    void Shader::checkShaderProgramStatus(const unsigned int program) const
     {
         int success;
         char infoLog[512];
         // after the program is linked, we do a check to see if it's valid
-        glGetProgramiv(program, GL_LINK_STATUS, & success);
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
         if(!success)
         {
             glGetProgramInfoLog(program, 512, nullptr, infoLog);
