@@ -79,6 +79,7 @@ int main()
     unsigned int VBO;
     unsigned int cubeVAO;
     unsigned int lightVAO;
+
     glGenVertexArrays(1, &cubeVAO);
     glGenVertexArrays(1, &lightVAO);
     glGenBuffers(1, &VBO);
@@ -107,7 +108,6 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-
     /* Defines our Camera class to automatically change our view and perspective
      * matrices to simulate a camera */
     core::Camera camera({ .Pos = glm::vec3(0.0f, 0.0f, 6.0f), .Speed = 7.5f, .MouseSens = 0.1f });
@@ -123,6 +123,8 @@ int main()
     window.setClearColour(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
+    float rotationAngle = 0.0f;
+    constexpr float rotationSpeed = 0.8f;
 
     while(!window.shouldClose())
     {
@@ -142,10 +144,16 @@ int main()
         cubeShader.setUniform<glm::vec3>("objectColour", glm::vec3(1.0f, 0.5f, 0.31f));
         cubeShader.setUniform<glm::vec3>("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
         cubeShader.setUniform<glm::vec3>("lightPos", lightPos);
+        cubeShader.setUniform<glm::vec3>("viewPos", camera.getCamPos());
+        cubeShader.setUniform<int>("shineLevel", 32);
+
+        float dt = window.getDeltaTime();
+        rotationAngle += rotationSpeed * dt;
+        if(rotationAngle > 360.0f) rotationAngle -= 360.0f;
 
         auto model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         cubeShader.setUniform<glm::mat4>("model", model);
 
         glBindVertexArray(cubeVAO);// Use the CUBE VAO
@@ -158,19 +166,20 @@ int main()
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.125f));// Make the lamp smaller
+        model = glm::scale(model, glm::vec3(0.2f));// Make the lamp smaller
         lightingShader.setUniform<glm::mat4>("model", model);
 
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
         window.endImgui();
         window.swapBuffers();
         window.pollEvents();
     }
+
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightVAO);
     glDeleteBuffers(1, &VBO);
+
     glfwTerminate();
     return 0;
 }

@@ -15,7 +15,7 @@
 
 int main()
 {
-    core::Window window({ .name = "DiffuseLighting", .vSync = false });
+    core::Window window({ .name = "PointLighting", .vSync = false });
     glfwSetInputMode(window.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window.getGLFWWindow(), framebuffer_size_callback);
 
@@ -121,8 +121,14 @@ int main()
 
     core::FPSCounter fps;
     window.setClearColour(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
+    std::vector lightPositions = {
+        glm::vec3(3.0f, 1.5f, 2.0f), // KeyLight
+        glm::vec3(-6.0f, 1.5f, 2.0f),// FillLight
+        glm::vec3(0.0f, 1.5f, -8.0f) // Backlight
+    };
+    float rotationAngle = 0.0f;
+    constexpr float rotationSpeed = 0.5f;
 
     while(!window.shouldClose())
     {
@@ -137,32 +143,41 @@ int main()
         cubeShader.use();
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix(window.getFramebufferWidth(), window.getFramebufferHeight());
-        cubeShader.setUniform<glm::mat4>("view", view);
-        cubeShader.setUniform<glm::mat4>("projection", projection);
-        cubeShader.setUniform<glm::vec3>("objectColour", glm::vec3(1.0f, 0.5f, 0.31f));
-        cubeShader.setUniform<glm::vec3>("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
-        cubeShader.setUniform<glm::vec3>("lightPos", lightPos);
+        cubeShader.setUniform("view", view);
+        cubeShader.setUniform("projection", projection);
+        cubeShader.setUniform("objectColour", glm::vec3(0.75, 0.0f, 0.0f));
+        cubeShader.setUniform("lightColour", glm::vec3(1.0f, 1.0f, 1.0f));
+        cubeShader.setUniform("lightPositions", lightPositions);
+        cubeShader.setUniform("viewPos", camera.getCamPos());
+        cubeShader.setUniform("shineLevel", 64);
+
+        float dt = window.getDeltaTime();
+        rotationAngle += rotationSpeed * dt;
+        if(rotationAngle > 360.0f) rotationAngle -= 360.0f;
 
         auto model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, static_cast<float>( window.getWindowTime() ), glm::vec3(0.0f, 1.0f, 0.0f));
-        cubeShader.setUniform<glm::mat4>("model", model);
+        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        cubeShader.setUniform("model", model);
 
         glBindVertexArray(cubeVAO);// Use the CUBE VAO
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-
         lightingShader.use();
-        lightingShader.setUniform<glm::mat4>("view", view);
-        lightingShader.setUniform<glm::mat4>("projection", projection);
+        float lightIntensity = 1.0f;
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.125f));// Make the lamp smaller
-        lightingShader.setUniform<glm::mat4>("model", model);
-
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(auto& i : lightPositions)
+        {
+            lightingShader.setUniform("view", view);
+            lightingShader.setUniform("projection", projection);
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, i);
+            model = glm::scale(model, glm::vec3(0.2f));// Make the lamp smaller
+            lightingShader.setUniform("model", model);
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            lightIntensity *= 0.2f;
+        }
 
         window.endImgui();
         window.swapBuffers();
