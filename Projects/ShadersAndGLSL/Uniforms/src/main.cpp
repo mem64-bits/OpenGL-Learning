@@ -1,6 +1,7 @@
 #include <glad/gl.h>
 #include  <GLFW/glfw3.h>
 #include <iostream>
+#include <cmath>
 
 // Forward Declarations to make code cleaner
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -116,14 +117,14 @@ int main()
     /*---------------------------------------------------------------------------*/
 
     // Vertex Data (Forms Triangle)
-    float vertices[] = {
+    constexpr float vertices[] = {
     -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
      0.0f,  0.5f, 0.0f
     };
 
     // Indice data for EBO (Useful for complex shapes)
-    unsigned int indices[]{
+    constexpr unsigned int indices[]{
         0,1,2
     };
 
@@ -170,10 +171,10 @@ int main()
          * fragment shader uniform variable;
          */
         glUseProgram(shaderProgram);
-        float timeValue = static_cast<float>(glfwGetTime());
-        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        const double timeValue = glfwGetTime();
+        const auto greenValue = static_cast<float>(sin(timeValue) / 2.0 + 0.5);
 
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour");
+        const int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColour");
 
         //Sends data from CPU to uniform vec4 we defined in the fragment shader
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);

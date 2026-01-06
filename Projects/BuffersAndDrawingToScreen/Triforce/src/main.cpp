@@ -91,12 +91,12 @@ int main()
 
 
     // Hacky way to scale down matrix
-    for (int i = 0; i < std::size(vertices); i++)
+    for (float& vertex : vertices)
     {
-        vertices[i] *= 0.6f;
+        vertex *= 0.6f;
     }
 
-    /*Setting Up VBO,VAO and EBO Buffers*/
+    /*Setting Up VBO, VAO and EBO Buffers*/
     unsigned int VBO;
     unsigned int VAO;
     unsigned int EBO; 

@@ -4,24 +4,24 @@
 
 struct TextureParameters
 {
-    int wrapS;
-    int wrapT;
-    int minFilter;
-    int magFilter;
+    int m_WrapS;
+    int m_WrapT;
+    int m_MinFilter;
+    int m_MagFilter;
     //To be added later in advanced opengl
     //bool srgb;
 
     TextureParameters()
-        : wrapS(GL_REPEAT),
-          wrapT(GL_REPEAT),
-          minFilter(GL_LINEAR_MIPMAP_LINEAR),
-          magFilter(GL_LINEAR) {}
+        : m_WrapS(GL_REPEAT),
+          m_WrapT(GL_REPEAT),
+          m_MinFilter(GL_LINEAR_MIPMAP_LINEAR),
+          m_MagFilter(GL_LINEAR) {}
 
-    explicit TextureParameters(int wrapS, int wrapT, int minFilter, int magFilter)
-        : wrapS(wrapS),
-          wrapT(wrapT),
-          minFilter(minFilter),
-          magFilter(magFilter) {}
+    explicit TextureParameters(const int wrapS, const int wrapT, const int minFilter, const int magFilter)
+        : m_WrapS(wrapS),
+          m_WrapT(wrapT),
+          m_MinFilter(minFilter),
+          m_MagFilter(magFilter) {}
 };
 
 class Texture
@@ -56,10 +56,10 @@ public:
         glGenTextures(1, &m_TextureID);
         glBindTexture(GL_TEXTURE_2D, m_TextureID);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.magFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.wrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.wrapT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.m_MinFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.m_MagFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.m_WrapS);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.m_WrapT);
 
         if (img.getNrChannels() == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, img.getImage());
@@ -82,6 +82,6 @@ public:
         glBindTexture(GL_TEXTURE_2D, m_TextureID);
     }
 
-    int getWidth() const { return m_Width; }
-    int getHeight() const { return m_Height; }
+    [[nodiscard]] int getWidth() const { return m_Width; }
+    [[nodiscard]] int getHeight() const { return m_Height; }
 };

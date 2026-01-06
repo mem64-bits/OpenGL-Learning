@@ -86,6 +86,10 @@ int main()
     // VBO setup
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(vertices.size() * sizeof(vertices[0])),
+                 vertices.data(),
+                 GL_STATIC_DRAW);
 
     // Set up for cubeVAO
     glBindVertexArray(cubeVAO);

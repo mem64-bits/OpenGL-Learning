@@ -10,18 +10,23 @@
 
 namespace core
 {
+    // Merge these into one call in the constructor
     void Window::initGLFW()
     {
         static bool glfwInitialized = false;
-        if(!glfwInitialized)
-        {
-            if(!glfwInit())
-            {
-                throw std::runtime_error("Failed to initialize GLFW\n");
-            }
+        if(glfwInitialized) return;
+
+#ifdef _WIN32
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WIN32);
+#elif defined(__linux__)
+        glfwInitHint(GLFW_PLATFORM, GLFW_ANY_PLATFORM);
+#endif
+
+        if (!glfwInit()) {
+            throw std::runtime_error("[Window]: Failed to initialize GLFW\n");
         }
 
-        std::cout << "[Window]: GLFW Initialized" << '\n';
+        std::cerr << "[Window]: GLFW Initialized" << '\n';
         glfwInitialized = true;
     }
 
@@ -36,7 +41,7 @@ namespace core
             }
             glViewport(0, 0, m_Options.width, m_Options.height);
             gladInitialized = true;
-            std::cout << "[Window]: GLAD Initialized" << '\n';
+            std::cerr<< "[Window]: GLAD Initialized" << '\n';
 
             // Scaling fix to account for DPI on different displays
             int fbWidth, fbHeight;
@@ -60,7 +65,7 @@ namespace core
             imguiInitialized = true;
         }
 
-        std::cout << "[Window]: ImGui Initialized" << '\n';
+        std::cerr << "[Window]: ImGui Initialized" << '\n';
 
         // Initializes glfw and opengl imgui implementation
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -70,23 +75,26 @@ namespace core
 
     void Window::createWindow()
     {
-        // Applies different scaling for linux
-#ifdef __linux__
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
+#ifdef __linux__
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+        {
+            glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+        }
 #endif
+
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_Options.profileMajor);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_Options.profileMinor);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, static_cast<int>( m_Options.profile ));
+        glfwWindowHint(GLFW_OPENGL_PROFILE, static_cast<int>(m_Options.profile));
 
-        m_Window = glfwCreateWindow(m_Options.width, m_Options.height, m_Options.name.c_str(), nullptr, nullptr);
-        if(m_Window == nullptr)
-        {
-            throw std::runtime_error("[Window]: Failed to create GLFW window\n");
+        m_Window = glfwCreateWindow(m_Options.width, m_Options.height,
+                                    m_Options.name.c_str(), nullptr, nullptr);
+
+        if (m_Window == nullptr) {
+            throw std::runtime_error("[Window]: Failed to create GLFW window");
         }
-
-        std::cout << "[Window]: Window Created" << '\n';
     }
-
 
     Window::Window(WindowOptions options)
         : m_Options(std::move(options))
@@ -122,7 +130,6 @@ namespace core
 
     [[nodiscard]] float Window::getDeltaTime() const { return m_DeltaTime; }
 
-
     void Window::beginImgui() const
     {
         ImGui_ImplOpenGL3_NewFrame();
@@ -135,7 +142,6 @@ namespace core
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
-
 
     void Window::clear() const
     {

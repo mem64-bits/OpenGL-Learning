@@ -1,6 +1,6 @@
 #include <glad/gl.h>
 #include  <GLFW/glfw3.h>
-#include "include/GLFWCallbacks.h"
+#include "include/glfwCallBacks.h"
 #include "include/Shader.h"
 #include "include/Texture.h"
 #include <iostream>

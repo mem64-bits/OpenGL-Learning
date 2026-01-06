@@ -1,7 +1,5 @@
 #include <FPSCounter.h>
-#include <GLFW/glfw3.h>
 #include <imgui.h>
-#include <glm/glm.hpp>
 
 
 namespace core

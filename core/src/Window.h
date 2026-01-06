@@ -36,11 +36,9 @@ namespace core
         float m_DeltaTime = 0.0f;    // Float for game logic
 
         static void initGLFW();
-
         void initGLAD() const;
 
         void initImGui() const;
-
         void createWindow();
 
     public:
